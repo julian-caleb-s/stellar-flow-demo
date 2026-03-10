@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Border Settlement Demo | Stellar Network</title>
+    <style>
+        :root {
+            --primary: #5025B8;
+            --secondary: #3D1C8C;
+            --accent: #D5C2FF;
+            --bg-dark: #232329;
+            --text-light: #E4E4E4;
+            --card-bg: #2d2d35;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            height: 12%;
+            padding: 1rem;
+            background: linear-gradient(90deg, var(--secondary), var(--bg-dark));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--primary);
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            height: 73%;
+        }
+
+        footer {
+            height: 15%;
+            padding: 1rem;
+            background: var(--card-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            border-top: 1px solid #333;
+        }
+
+        /* --- Header Components --- */
+        .header-info h1 {
+            font-size: 1.2rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-info p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .progress-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #444;
+            transition: var(--transition);
+        }
+
+        .step-dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* --- Panels & Responsiveness --- */
+        .simulation-panel {
+            flex: 1.5;
+            position: relative;
+            background: radial-gradient(circle at center, #2d2d3a 0%, #232329 100%);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .explanation-panel {
+            flex: 1;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-left: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+            }
+
+            .simulation-panel {
+                flex: 2;
+                padding: 1rem;
+            }
+
+            .explanation-panel {
+                flex: 1;
+                border-left: none;
+                border-top: 1px solid #333;
+                padding: 1.5rem;
+                justify-content: start;
+            }
+
+            .explanation-content p {
+                font-size: 0.9rem !important;
+                line-height: 1.4 !important;
+            }
+
+            .explanation-content h2 {
+                font-size: 1.4rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+        }
+
+        .explanation-content h2 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .explanation-content p {
+            line-height: 1.6;
+            font-size: 1.1rem;
+            color: #ccc;
+        }
+
+        .node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            transition: var(--transition);
+        }
+
+        .bank-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--secondary);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .bank-icon {
+                width: 50px;
+                height: 50px;
+            }
+            .bank-icon svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        .bank-label {
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .stellar-core {
+            width: 80px;
+            height: 80px;
+            background: rgba(80, 37, 184, 0.1);
+            border: 2px dashed var(--primary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .stellar-logo {
+            width: 35px;
+            fill: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .stellar-core {
+                width: 60px;
+                height: 60px;
+            }
+            .stellar-logo {
+                width: 25px;
+            }
+        }
+
+        .token {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.7rem;
+            box-shadow: 0 0 20px var(--accent);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+            transition: opacity 0.4s, transform 0.8s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .token {
+                width: 30px;
+                height: 30px;
+                font-size: 0.6rem;
+            }
+        }
+
+        button {
+            padding: 10px 24px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+
+        .btn-next {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-next:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(80, 37, 184, 0.4);
+        }
+
+        .btn-restart {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-restart:hover {
+            background: rgba(213, 194, 255, 0.1);
+        }
+
+        .active-node {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 15px var(--accent));
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        .processing .stellar-core {
+            animation: pulse 1.5s infinite;
+            border-style: solid;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-info">
+            <h1>Settlement Demo</h1>
+            <p>Stellar Network &bull; FX Liquidity</p>
+        </div>
+        <div class="progress-container" id="progress-dots">
+            </div>
+    </header>
+
+    <main>
+        <section class="simulation-panel" id="sim-stage">
+            
+            <div class="node" id="bank-a">
+                <div class="bank-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M12 1L2 6v2h20V6L12 1zm10 19H2v2h20v-2zM5 9h3v9H5V9zm6 0h3v9h-3V9zm6 0h3v9h-3V9z"/></svg>
+                </div>
+                <div class="bank-label">Bank A (USA)</div>
+            </div>
+
+            <div class="node" id="stellar-network">
+                <div class="stellar-core">
+                    <svg class="stellar-logo" viewBox="0 0 24 24"><path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"/></svg>
+                </div>
+                <div class="bank-label">Stellar Ledger</div>
+            </div>
+
+            <div class="node" id="bank-b">
+                <div class="bank-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M12 1L2 6v2h20V6L12 1zm10 19H2v2h20v-2zM5 9h3v9H5V9zm6 0h3v9h-3V9zm6 0h3v9h-3V9z"/></svg>
+                </div>
+                <div class="bank-label">Bank B (EU)</div>
+            </div>
+
+            <div id="token-sprite" class="token">USD</div>
+        </section>
+
+        <section class="explanation-panel">
+            <div class="explanation-content" id="explanation-text">
+                <h2 id="step-title">Welcome</h2>
+                <p id="step-desc">Click "Start Demo" to visualize the cross-border settlement process on Stellar.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <button class="btn-restart" onclick="resetDemo()">Reset</button>
+        <button class="btn-next" id="next-btn" onclick="nextStep()">Start Demo</button>
+    </footer>
+
+    <script>
+        const steps = [
+            {
+                title: "1. Payment Initiation",
+                desc: "A US bank receives instruction to send funds to Europe. Traditionally this is slow (2-5 days) and goes through multiple correspondent banks.",
+                highlight: "bank-a",
+                action: () => moveToken('reset')
+            },
+            {
+                title: "2. Digital Representation",
+                desc: "The bank tokenizes USD reserves into a digital stablecoin on Stellar. Values now move at internet speed.",
+                highlight: "bank-a",
+                action: () => moveToken('bank-a')
+            },
+            {
+                title: "3. Automated FX Routing",
+                desc: "Stellar's protocol instantly swaps USD for EUR via on-chain liquidity pools.",
+                highlight: "stellar-network",
+                action: () => moveToken('stellar')
+            },
+            {
+                title: "4. Instant Settlement",
+                desc: "The transaction finalizes on the immutable Stellar ledger in about 5 seconds. Atomic settlement (simultaneous FX swap and transfer).",
+                highlight: "stellar-network",
+                action: () => {
+                    document.getElementById('stellar-network').classList.add('processing');
+                }
+            },
+            {
+                title: "5. Funds Received",
+                desc: "Bank B redeems EUR tokens for local currency and credits the recipient. Total time: Seconds.",
+                highlight: "bank-b",
+                action: () => {
+                    document.getElementById('stellar-network').classList.remove('processing');
+                    moveToken('bank-b');
+                }
+            }
+        ];
+
+        let currentStep = -1;
+
+        const dotsContainer = document.getElementById('progress-dots');
+        steps.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'step-dot';
+            dotsContainer.appendChild(dot);
+        });
+
+        function updateUI() {
+            const step = steps[currentStep];
+            
+            document.getElementById('step-title').textContent = step.title;
+            document.getElementById('step-desc').textContent = step.desc;
+
+            const dots = document.querySelectorAll('.step-dot');
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i <= currentStep);
+            });
+
+            document.querySelectorAll('.node').forEach(n => n.classList.remove('active-node'));
+            document.getElementById(step.highlight).classList.add('active-node');
+
+            step.action();
+
+            const nextBtn = document.getElementById('next-btn');
+            if (currentStep === steps.length - 1) {
+                nextBtn.textContent = "Finish";
+                nextBtn.style.opacity = "0.5";
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.textContent = "Next Step";
+                nextBtn.disabled = false;
+                nextBtn.style.opacity = "1";
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateUI();
+            }
+        }
+
+        function resetDemo() {
+            currentStep = 0;
+            document.getElementById('stellar-network').classList.remove('processing');
+            updateUI();
+        }
+
+        function moveToken(position) {
+            const token = document.getElementById('token-sprite');
+            const stage = document.getElementById('sim-stage');
+            const nodes = stage.querySelectorAll('.node');
+
+            let leftPos = '50%';
+            let opacity = '1';
+            let label = 'USD';
+            let scale = 'scale(1)';
+
+            switch(position) {
+                case 'bank-a': 
+                    leftPos = '20%';
+                    label = 'USD';
+                    break;
+                case 'stellar':
+                    leftPos = '50%';
+                    label = 'FX...';
+                    scale = 'scale(0.8)'; 
+                    break;
+                case 'bank-b': 
+                    leftPos = '80%';
+                    label = 'EUR';
+                    break;
+                case 'reset':
+                    opacity = '0';
+                    break;
+            }
+
+            token.style.opacity = opacity;
+            token.style.left = leftPos;
+            token.style.top = '50%';
+            token.style.transform = `translate(-50%, -50%) ${scale}`;
+            token.textContent = label;
+        }
+
+        const initializeToken = () => {
+             moveToken('reset');
+        };
+        window.addEventListener('load', initializeToken);
+        window.addEventListener('resize', () => {
+            if(currentStep >= 0) updateUI();
+        });
+    </script>
+</body>
+</html>
