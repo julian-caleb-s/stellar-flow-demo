@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Blockdaemon x Stellar | Institutional Settlement</title>
+    <style>
+        :root {
+            --primary: #5025B8;
+            --secondary: #3D1C8C;
+            --accent: #D5C2FF;
+            --bg-dark: #0F0F12;
+            --card-bg: #18181D;
+            --text-light: #E4E4E4;
+            --code-green: #00ffcc;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            flex: 0 0 8%;
+            padding: 0 1rem;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid #222;
+        }
+
+        header h1 {
+            font-size: 0.9rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .simulation-panel {
+            flex: 0 0 45%;
+            position: relative;
+            background: radial-gradient(circle at center, #1a1a20 0%, #0f0f12 100%);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 2rem;
+            min-height: 0;
+        }
+
+        .explanation-panel {
+            flex: 1;
+            background: var(--card-bg);
+            padding: 1.25rem;
+            border-top: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Infrastructure Layer */
+        .infra-layer {
+            position: absolute;
+            bottom: 5%;
+            left: 5%;
+            right: 5%;
+            height: 90px;
+            border: 1px dashed rgba(213, 194, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(80, 37, 184, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .infra-brand {
+            font-size: 0.55rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--accent);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            opacity: 0.6;
+        }
+
+        .infra-nodes-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+
+        .infra-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0.2;
+            transition: var(--transition);
+            transform: scale(0.8);
+        }
+
+        .infra-node.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .infra-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 4px;
+            margin-bottom: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .infra-label {
+            font-size: 0.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--accent);
+            text-align: center;
+        }
+
+        /* Top Nodes */
+        .node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            transition: var(--transition);
+            width: 30%;
+        }
+
+        .bank-icon, .stellar-core {
+            width: 50px;
+            height: 50px;
+            background: var(--secondary);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .stellar-core {
+            border-radius: 50%;
+            background: rgba(80, 37, 184, 0.2);
+            border-style: dashed;
+        }
+
+        .bank-label {
+            font-weight: 600;
+            font-size: 0.6rem;
+            text-align: center;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+
+        .token {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 800;
+            font-size: 0.6rem;
+            box-shadow: 0 0 15px var(--accent);
+            opacity: 0;
+            z-index: 10;
+            top: calc(2rem + 25px);
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s;
+        }
+
+        /* Content Area */
+        .explanation-content h2 { color: var(--accent); font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .explanation-content p { font-size: 0.85rem; color: #bbb; line-height: 1.4; margin-bottom: 1rem; }
+        
+        .code-snippet {
+            background: #000;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            color: var(--code-green);
+            margin-bottom: 10px;
+            border-left: 2px solid var(--primary);
+            overflow-x: auto;
+        }
+
+        .doc-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--accent);
+        }
+
+        /* Footer Controls */
+        footer {
+            flex: 0 0 18%;
+            padding: 0.75rem 1.25rem;
+            background: #121216;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-top: 1px solid #222;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.85rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            transition: 0.2s;
+        }
+
+        .btn-next { background: var(--primary); color: white; }
+        .btn-reset { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+
+        .active-node .bank-icon, .active-node .stellar-core {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        /* Desktop Layout Override */
+        @media (min-width: 850px) {
+            main { flex-direction: row; }
+            .simulation-panel { flex: 1.5; height: 100%; align-items: center; padding-top: 0; }
+            .explanation-panel { flex: 1; height: 100%; border-top: none; border-left: 1px solid #222; padding: 2.5rem; }
+            footer { flex-direction: row; flex: 0 0 12%; }
+            button { width: auto; padding: 1rem 2rem; }
+            header { height: 10%; }
+            .token { top: 50%; }
+            .bank-icon, .stellar-core { width: 70px; height: 70px; }
+            .bank-label { font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Blockdaemon Stellar Infrastructure Settlement</h1>
+    </header>
+
+    <main>
+        <section class="simulation-panel" id="stage">
+            <div class="node" id="bank-a">
+                <div class="bank-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 1L2 6v2h20V6L12 1zm10 19H2v2h20v-2zM5 9h3v9H5V9zm6 0h3v9h-3V9zm6 0h3v9h-3V9z"/></svg>
+                </div>
+                <div class="bank-label">Bank A (USA)</div>
+            </div>
+
+            <div class="node" id="stellar-network">
+                <div class="stellar-core">
+                    <svg width="20" height="20" fill="var(--accent)" viewBox="0 0 24 24"><path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"/></svg>
+                </div>
+                <div class="bank-label">Stellar</div>
+            </div>
+
+            <div class="node" id="bank-b">
+                <div class="bank-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 1L2 6v2h20V6L12 1zm10 19H2v2h20v-2zM5 9h3v9H5V9zm6 0h3v9h-3V9zm6 0h3v9h-3V9z"/></svg>
+                </div>
+                <div class="bank-label">Bank B (EU)</div>
+            </div>
+
+            <div id="token" class="token">USD</div>
+
+            <div class="infra-layer">
+                <div class="infra-brand">Blockdaemon Layer</div>
+                <div class="infra-nodes-container">
+                    <div class="infra-node" id="infra-rpc">
+                        <div class="infra-icon">⚡</div>
+                        <div class="infra-label">Stellar RPC</div>
+                    </div>
+                    <div class="infra-node" id="infra-val">
+                        <div class="infra-icon">🛡️</div>
+                        <div class="infra-label">Validator</div>
+                    </div>
+                    <div class="infra-node" id="infra-ubi">
+                        <div class="infra-icon">📊</div>
+                        <div class="infra-label">Ubiquity API</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="explanation-panel">
+            <div id="content" class="explanation-content">
+                <h2 id="title">Demo Ready</h2>
+                <p id="desc">Click Start Demo to see Blockdaemon's infrastructure layer in action.</p>
+                <div id="extra"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <button class="btn-reset" onclick="reset()">Reset</button>
+        <button class="btn-next" id="next" onclick="next()">Start Demo</button>
+    </footer>
+
+    <script>
+        const steps = [
+            {
+                t: "1. RPC Gateway",
+                d: "Bank A connects to Stellar. Blockdaemon provides dedicated RPC nodes for secure, high-volume gateway access.",
+                h: "bank-a", i: "infra-rpc", pos: "16%", label: "USD",
+                code: "curl -X POST https://svc.blockdaemon.com/stellar/...",
+                link: "https://docs.blockdaemon.com/docs/stellar-quick-start"
+            },
+            {
+                t: "2. Secure Issuance",
+                d: "Bank A tokenizes USD. Blockdaemon infrastructure ensures 99.9% uptime for the bank's account operations.",
+                h: "bank-a", i: "infra-rpc", pos: "16%", label: "USD",
+                code: "StellarSdk.Asset('USD', issuerId);",
+                link: "https://docs.blockdaemon.com/docs/stellar-node-types"
+            },
+            {
+                t: "3. Tier 1 Validation",
+                d: "The swap USD/EUR occurs. Blockdaemon operates a Tier 1 Validator node that confirms the transaction on-chain.",
+                h: "stellar-network", i: "infra-val", pos: "50%", label: "FX...",
+                code: "Operation.pathPaymentStrictSend({...})",
+                link: "https://docs.blockdaemon.com/docs/stellar-validator-node"
+            },
+            {
+                t: "4. Consensus Confirmation",
+                d: "Blockdaemon ensures network finality in seconds, providing institutional stability for large-scale swaps.",
+                h: "stellar-network", i: "infra-val", pos: "50%", label: "EUR",
+                code: "status: 'confirmed', ledger: 54912341",
+                link: "https://docs.blockdaemon.com/docs/stellar-introduction"
+            },
+            {
+                t: "5. Ubiquity Data",
+                d: "Bank B receives EUR. They use Blockdaemon's Ubiquity API to index and verify the transaction for compliance.",
+                h: "bank-b", i: "infra-ubi", pos: "84%", label: "EUR",
+                code: "GET /universal/v1/stellar/account/{id}",
+                link: "https://docs.blockdaemon.com/reference/ubiquity-api-overview"
+            }
+        ];
+
+        let idx = -1;
+
+        function update() {
+            const s = steps[idx];
+            const t = document.getElementById('token');
+            const nextBtn = document.getElementById('next');
+            
+            document.getElementById('title').textContent = s.t;
+            document.getElementById('desc').textContent = s.d;
+            document.getElementById('extra').innerHTML = `
+                <div class="code-snippet">${s.code}</div>
+                <a href="${s.link}" target="_blank" class="doc-link">View Documentation →</a>
+            `;
+            
+            document.querySelectorAll('.node').forEach(n => n.classList.remove('active-node'));
+            document.querySelectorAll('.infra-node').forEach(n => n.classList.remove('active'));
+
+            document.getElementById(s.h).classList.add('active-node');
+            document.getElementById(s.i).classList.add('active');
+
+            t.style.opacity = "1";
+            t.style.left = s.pos;
+            t.textContent = s.label;
+
+            nextBtn.textContent = (idx === steps.length - 1) ? "Complete" : "Next Step";
+            nextBtn.disabled = (idx === steps.length - 1);
+            nextBtn.style.opacity = (idx === steps.length - 1) ? "0.5" : "1";
+        }
+
+        function next() {
+            if (idx < steps.length - 1) {
+                idx++;
+                update();
+            }
+        }
+
+        function reset() {
+            idx = 0;
+            update();
+        }
+    </script>
+</body>
+</html>
