@@ -44,10 +44,10 @@
         }
 
         header h1 {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--accent);
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             text-align: center;
         }
 
@@ -59,33 +59,42 @@
         }
 
         .simulation-panel {
-            flex: 0 0 45%;
+            flex: 0 0 42%;
             position: relative;
             background: radial-gradient(circle at center, #1a1a20 0%, #0f0f12 100%);
             display: flex;
             justify-content: space-around;
             align-items: flex-start;
-            padding-top: 2rem;
+            padding-top: 1.5rem;
             min-height: 0;
         }
 
         .explanation-panel {
             flex: 1;
             background: var(--card-bg);
-            padding: 1.25rem;
+            padding: 1.5rem;
             border-top: 1px solid #222;
             display: flex;
-            flex-direction: column;
+            justify-content: center; 
+            align-items: center;    
             overflow-y: auto;
         }
 
-        /* Infrastructure Layer */
+        .explanation-content {
+            width: 100%;
+            max-width: 500px;
+            text-align: left; /* Align text content left */
+        }
+
+        .explanation-content h2 { color: var(--accent); font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .explanation-content p { font-size: 0.85rem; color: #bbb; line-height: 1.4; margin-bottom: 1rem; }
+
         .infra-layer {
             position: absolute;
             bottom: 5%;
             left: 5%;
             right: 5%;
-            height: 90px;
+            height: 85px;
             border: 1px dashed rgba(213, 194, 255, 0.2);
             border-radius: 8px;
             background: rgba(80, 37, 184, 0.05);
@@ -121,10 +130,7 @@
             transform: scale(0.8);
         }
 
-        .infra-node.active {
-            opacity: 1;
-            transform: scale(1);
-        }
+        .infra-node.active { opacity: 1; transform: scale(1); }
 
         .infra-icon {
             width: 24px;
@@ -146,19 +152,17 @@
             text-align: center;
         }
 
-        /* Top Nodes */
         .node {
             display: flex;
             flex-direction: column;
             align-items: center;
             z-index: 2;
-            transition: var(--transition);
             width: 30%;
         }
 
         .bank-icon, .stellar-core {
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             background: var(--secondary);
             border: 1px solid var(--primary);
             border-radius: 8px;
@@ -168,24 +172,14 @@
             margin-bottom: 6px;
         }
 
-        .stellar-core {
-            border-radius: 50%;
-            background: rgba(80, 37, 184, 0.2);
-            border-style: dashed;
-        }
+        .stellar-core { border-radius: 50%; background: rgba(80, 37, 184, 0.2); border-style: dashed; }
 
-        .bank-label {
-            font-weight: 600;
-            font-size: 0.6rem;
-            text-align: center;
-            opacity: 0.8;
-            line-height: 1.2;
-        }
+        .bank-label { font-weight: 600; font-size: 0.55rem; text-align: center; opacity: 0.8; line-height: 1.2; }
 
         .token {
             position: absolute;
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             background: var(--accent);
             color: var(--secondary);
             border-radius: 50%;
@@ -197,15 +191,11 @@
             box-shadow: 0 0 15px var(--accent);
             opacity: 0;
             z-index: 10;
-            top: calc(2rem + 25px);
+            top: calc(1.5rem + 24px);
             left: 50%;
             transform: translate(-50%, -50%);
             transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s;
         }
-
-        /* Content Area */
-        .explanation-content h2 { color: var(--accent); font-size: 1.2rem; margin-bottom: 0.5rem; }
-        .explanation-content p { font-size: 0.85rem; color: #bbb; line-height: 1.4; margin-bottom: 1rem; }
         
         .code-snippet {
             background: #000;
@@ -214,9 +204,10 @@
             font-family: 'Courier New', monospace;
             font-size: 0.7rem;
             color: var(--code-green);
-            margin-bottom: 10px;
+            margin: 0 0 10px 0;
             border-left: 2px solid var(--primary);
             overflow-x: auto;
+            max-width: 100%;
         }
 
         .doc-link {
@@ -227,19 +218,21 @@
             border-bottom: 1px solid var(--accent);
         }
 
-        /* Footer Controls */
         footer {
-            flex: 0 0 18%;
-            padding: 0.75rem 1.25rem;
+            flex: 0 0 20%;
+            padding: 1rem;
             background: #121216;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
             border-top: 1px solid #222;
         }
 
         button {
             width: 100%;
+            max-width: 320px;
             padding: 0.85rem;
             border-radius: 6px;
             border: none;
@@ -258,24 +251,32 @@
             box-shadow: 0 0 15px var(--accent);
         }
 
-        /* Desktop Layout Override */
         @media (min-width: 850px) {
             main { flex-direction: row; }
             .simulation-panel { flex: 1.5; height: 100%; align-items: center; padding-top: 0; }
             .explanation-panel { flex: 1; height: 100%; border-top: none; border-left: 1px solid #222; padding: 2.5rem; }
-            footer { flex-direction: row; flex: 0 0 12%; }
-            button { width: auto; padding: 1rem 2rem; }
+            
+            /* Buttons side by side on desktop */
+            footer { 
+                flex-direction: row; 
+                flex: 0 0 15%; 
+                padding: 1rem 2rem;
+                justify-content: center;
+            }
+            button { width: 180px; }
+
             header { height: 10%; }
+            header h1 { font-size: 1rem; }
             .token { top: 50%; }
-            .bank-icon, .stellar-core { width: 70px; height: 70px; }
-            .bank-label { font-size: 0.75rem; }
+            .bank-icon, .stellar-core { width: 65px; height: 65px; }
+            .bank-label { font-size: 0.7rem; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Blockdaemon Stellar Infrastructure Settlement</h1>
+        <h1>Blockdaemon Stellar Settlement</h1>
     </header>
 
     <main>
@@ -291,7 +292,7 @@
                 <div class="stellar-core">
                     <svg width="20" height="20" fill="var(--accent)" viewBox="0 0 24 24"><path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"/></svg>
                 </div>
-                <div class="bank-label">Stellar</div>
+                <div class="bank-label">Stellar Ledger</div>
             </div>
 
             <div class="node" id="bank-b">
